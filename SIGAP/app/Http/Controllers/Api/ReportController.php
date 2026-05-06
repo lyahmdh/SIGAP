@@ -15,15 +15,66 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reports = Report::with([
-            'user',
-            'category',
-            'images'
-        ])
-        ->latest()
-        ->get();
+        $query = Report::query()
+
+            // hanya ambil field yang dibutuhkan
+            ->select('id', 'title', 'category_id', 'status')
+
+            // relasi minimal
+            ->with(['category:id,name']);
+
+        $user = auth()->user();
+
+        // Riwayat Laporan
+        if ($request->boolean('mine') && $user) {
+            $query->where('user_id', $user->id);
+        }
+
+        // HIDE DITOLAK (publik)
+        if (
+            !$request->boolean('include_rejected') &&
+            !($user && $user->role === 'admin') &&
+            !$request->boolean('mine')
+        ) {
+            $query->where('status', '!=', 'ditolak');
+        }
+
+        // SEARCH
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        // FILTER
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('district')) {
+            $query->where('district', $request->district);
+        }
+
+        // SORTING
+        switch ($request->sort) {
+            case 'priority':
+                $query->orderByDesc('priority_score');
+                break;
+
+            case 'oldest':
+                $query->orderBy('created_at');
+                break;
+
+            default:
+                $query->latest();
+                break;
+        }
+
+        $reports = $query->get();
 
         return response()->json([
             'success' => true,
@@ -47,6 +98,23 @@ class ReportController extends Controller
                 'message' => 'Report tidak ditemukan'
             ], 404);
         }
+
+        // jangan tampilkan kalau ditolak
+        if ($report->status === 'ditolak') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Report tidak ditemukan'
+            ], 404);
+        }
+
+        // anonim
+        if ($report->is_anonymous && $report->user) {
+            $report->user->name = 'Anonim';
+        }
+
+        // format alamat
+        $report->formatted_address =
+            "Kelurahan {$report->subdistrict}, Kecamatan {$report->district}";
 
         return response()->json([
             'success' => true,
@@ -113,8 +181,8 @@ class ReportController extends Controller
 
         // final priority score
         $priorityScore =
-            ($severityScore * 0.5) +
-            ($reportCountScore * 0.3) +
+            ($severityScore * 0.3) +
+            ($reportCountScore * 0.5) +
             ($waitingScore * 0.2);
 
         DB::beginTransaction();
@@ -131,6 +199,7 @@ class ReportController extends Controller
                 'status' => 'masuk',
                 'location_name' => $validated['location_name'],
                 'district' => $validated['district'],
+                'subdistrict' => $validated['subdistrict'],
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
                 'priority_score' => round($priorityScore, 2)
@@ -183,17 +252,21 @@ class ReportController extends Controller
             ], 404);
         }
 
-        if ($report->user_id !== auth()->id()) {
+        $user = auth()->user();
+
+        // hanya pemilik laporan
+        if ($report->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
             ], 403);
         }
 
+        // hanya jika belum diverifikasi
         if ($report->status !== 'masuk') {
             return response()->json([
                 'success' => false,
-                'message' => 'Laporan tidak dapat dihapus'
+                'message' => 'Laporan hanya bisa dihapus sebelum diverifikasi'
             ], 422);
         }
 
@@ -216,6 +289,14 @@ class ReportController extends Controller
             ], 404);
         }
 
+        // hanya admin
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
         $request->validate([
             'status' => [
                 'required',
@@ -223,15 +304,33 @@ class ReportController extends Controller
             ]
         ]);
 
+        // Status flow (tidak boleh mundur)
+        $allowedTransitions = [
+            'masuk' => ['diverifikasi', 'ditolak'],
+            'diverifikasi' => ['ditindaklanjuti', 'ditolak'],
+            'ditindaklanjuti' => ['selesai'],
+            'selesai' => [],
+            'ditolak' => []
+        ];
+
+        if (!in_array($request->status, $allowedTransitions[$report->status])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transisi status tidak valid'
+            ], 422);
+        }
+
         $report->update([
             'status' => $request->status
         ]);
 
         // kirim email
-        Mail::to($report->user->email)
-            ->send(
-                new ReportStatusUpdatedMail($report)
-            );
+        try {
+            Mail::to($report->user->email)
+                ->send(new ReportStatusUpdatedMail($report));
+        } catch (\Exception $e) {
+            \Log::error('Email gagal: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,

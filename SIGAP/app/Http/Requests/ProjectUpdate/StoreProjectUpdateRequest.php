@@ -15,8 +15,6 @@ class StoreProjectUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'report_id' => 'required|exists:reports,id',
-
             'title' => 'required|string|max:150',
 
             'description' => 'required|string',

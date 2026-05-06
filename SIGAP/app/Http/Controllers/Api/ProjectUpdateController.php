@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectUpdateController extends Controller
 {
-    public function store(StoreProjectUpdateRequest $request)
+    public function store(StoreProjectUpdateRequest $request, $id)    
     {
         $validated = $request->validated();
 
@@ -20,7 +20,7 @@ class ProjectUpdateController extends Controller
         try {
 
             $update = ProjectUpdate::create([
-                'report_id' => $validated['report_id'],
+                'report_id' => $id,
                 'admin_id' => auth()->id(),
                 'title' => $validated['title'],
                 'description' => $validated['description']

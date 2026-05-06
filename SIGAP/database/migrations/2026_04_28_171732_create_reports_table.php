@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('location_name');
 
             $table->string('district');
+            $table->string('subdistrict');
 
             $table->decimal('latitude', 10, 8);
 

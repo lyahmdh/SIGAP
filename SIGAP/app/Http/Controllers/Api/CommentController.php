@@ -8,6 +8,19 @@ use App\Models\Comment;
 
 class CommentController extends Controller
 {
+    public function index($id)
+    {
+        $comments = Comment::with('user')
+            ->where('report_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $comments
+        ]);
+    }
+
     public function store(StoreCommentRequest $request)
     {
         $validated = $request->validated();

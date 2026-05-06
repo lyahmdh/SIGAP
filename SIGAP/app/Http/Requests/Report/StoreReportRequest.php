@@ -26,7 +26,8 @@ class StoreReportRequest extends FormRequest
 
             'location_name' => 'required|string|max:255',
 
-            'district' => 'required|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'subdistrict' => 'nullable|string|max:100',
 
             'latitude' => [
                 'required',

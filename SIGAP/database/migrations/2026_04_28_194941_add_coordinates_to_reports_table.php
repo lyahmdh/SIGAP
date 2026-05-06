@@ -13,7 +13,7 @@ return new class extends Migration
     {
         DB::statement("
             ALTER TABLE reports 
-            ADD coordinates POINT NULL
+            ADD coordinates POINT NOT NULL
         ");
 
         DB::statement("

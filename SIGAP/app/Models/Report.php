@@ -20,6 +20,7 @@ class Report extends Model
         'status',
         'location_name',
         'district',
+        'subdistrict',
         'latitude',
         'longitude',
         'coordinates',
