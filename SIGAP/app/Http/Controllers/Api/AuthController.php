@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -15,68 +16,65 @@ class AuthController extends Controller
         $validated = $request->validated();
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'], // sudah di-hash otomatis dari model casts
-            'role' => 'user'
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => $validated['password'],
+            'role'     => 'user'
         ]);
 
-        // JWT generate
-        $token = auth('api')->login($user);
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'success' => true,
-            'message' => 'Register berhasil',
-            'token' => $token,
-            'token_type' => 'bearer',
-            'user' => $user
+            'success'    => true,
+            'message'    => 'Register berhasil',
+            'token'      => $token,
+            'token_type' => 'Bearer',
+            'user'       => $user
         ], 201);
     }
 
     public function login(LoginRequest $request)
     {
-        $credentials = $request->validated();
+        $validated = $request->validated();
 
-        if (!$token = auth('api')->attempt($credentials)) {
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah'
             ], 401);
         }
 
+        // Hapus token lama (opsional, biar tidak numpuk)
+        $user->tokens()->delete();
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
         return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil',
-            'token' => $token,
-            'token_type' => 'bearer',
-            'user' => auth('api')->user()
+            'success'    => true,
+            'message'    => 'Login berhasil',
+            'token'      => $token,
+            'token_type' => 'Bearer',
+            'user'       => $user
         ]);
     }
 
-    public function me()
+    public function me(Request $request)
     {
         return response()->json([
             'success' => true,
-            'user' => auth('api')->user()
+            'user'    => $request->user() // pakai $request->user(), bukan auth('api')->user()
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        auth('api')->logout();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Logout berhasil'
-        ]);
-    }
-
-    public function refresh()
-    {
-        return response()->json([
-            'success' => true,
-            'token' => auth('api')->refresh(),
-            'token_type' => 'bearer'
         ]);
     }
 }

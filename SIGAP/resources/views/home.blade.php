@@ -395,7 +395,7 @@
                     </a>
                     <a href="{{ route('rekap') ?? '/rekap' }}" class="btn-hero-outline">
                         <i class="bi bi-list-ul"></i>
-                        Lihat Semua Proyek
+                        Lihat Laporan Publik
                     </a>
                 </div>
             </div>
@@ -460,7 +460,7 @@
                 <h2 class="section-title">Apa itu <span style="color:var(--brown-accent);">SIGAP</span>?</h2>
                 <div class="section-underline"></div>
                 <p class="about-body">
-                    <strong>SIGAP</strong> (Sistem Informasi Gangguan & Aduan Publik) adalah platform digital yang menjembatani warga dan pemerintah dalam penanganan kerusakan fasilitas publik.
+                    <strong>SIGAP</strong> (Sistem Informasi Gangguan & Aduan Publik) adalah platform digital yang menjembatani warga dan pemerintah Kota Malang dalam penanganan kerusakan fasilitas publik.
                 </p>
                 <p class="about-body mt-3">
                     Melalui SIGAP, warga dapat melaporkan masalah lengkap dengan foto dan lokasi peta. Sistem secara otomatis menghitung <em>priority score</em> berdasarkan tingkat keparahan, jumlah pelapor, dan waktu tunggu — sehingga penanganan dilakukan berdasarkan urgensi yang terukur, bukan sekadar urutan datang.
@@ -521,44 +521,44 @@
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-eye"></i></div>
-                    <div class="feature-title">Transparansi Dana & Proyek</div>
-                    <p class="feature-body">Masyarakat dapat memantau penggunaan dana secara terbuka, mulai dari anggaran hingga progres pembangunan di lapangan.</p>
+                    <div class="feature-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="feature-title">Pelaporan Berbasis Lokasi</div>
+                    <p class="feature-body">Laporkan kerusakan fasilitas publik dengan menentukan titik lokasi langsung pada peta interaktif.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-currency-dollar"></i></div>
-                    <div class="feature-title">Pengelolaan Dana Efisien</div>
-                    <p class="feature-body">Membantu pemerintah mengelola proyek, laporan, dan anggaran secara lebih terstruktur dengan dashboard yang informatif.</p>
+                    <div class="feature-icon"><i class="bi bi-camera-fill"></i></div>
+                    <div class="feature-title">Upload Foto Bukti</div>
+                    <p class="feature-body">Lampirkan foto kondisi fasilitas sebagai bukti pendukung laporan.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
-                    <div class="feature-title">Monitoring Proyek Real-time</div>
-                    <p class="feature-body">Pantau perkembangan proyek secara real-time, termasuk progres pekerjaan dan status pembangunan yang sedang berjalan.</p>
+                    <div class="feature-icon"><i class="bi bi-sort-numeric-down"></i></div>
+                    <div class="feature-title">Priority Score Otomatis</div>
+                    <p class="feature-body">Sistem menghitung prioritas penanganan berdasarkan severity, report count, location importance, dan time waiting.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-people"></i></div>
-                    <div class="feature-title">Partisipasi Warga</div>
-                    <p class="feature-body">Mendorong warga untuk aktif berpartisipasi dalam mengawasi dan mendukung pembangunan melalui laporan dan komentar.</p>
+                    <div class="feature-icon"><i class="bi bi-arrow-repeat"></i></div>
+                    <div class="feature-title">Status Tracking</div>
+                    <p class="feature-body">Pantau perkembangan laporan mulai dari laporan masuk, diverifikasi, ditindaklanjuti, sampai selesai.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-phone"></i></div>
-                    <div class="feature-title">Laporan Warga Mudah</div>
-                    <p class="feature-body">Warga dapat melaporkan berbagai permasalahan fasilitas dengan mudah dan cepat, dilengkapi peta interaktif dan foto bukti.</p>
+                    <div class="feature-icon"><i class="bi bi-diagram-3-fill"></i></div>
+                    <div class="feature-title">Deteksi Laporan Serupa</div>
+                    <p class="feature-body">Membantu mengelompokkan laporan yang berada pada lokasi yang sama sehingga prioritas lebih akurat.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="bi bi-info-circle"></i></div>
-                    <div class="feature-title">Akses Informasi Terpusat</div>
-                    <p class="feature-body">Informasi terkait proyek pembangunan dan anggaran dapat diakses masyarakat secara mudah dalam satu platform terpadu.</p>
+                    <div class="feature-icon"><i class="bi bi-eye-fill"></i></div>
+                    <div class="feature-title">Transparansi Penanganan</div>
+                    <p class="feature-body">Seluruh pengguna dapat melihat status, perkembangan, dan tindak lanjut laporan secara terbuka.</p>
                 </div>
             </div>
         </div>
@@ -578,7 +578,7 @@
             @php
             $steps = [
                 ['icon'=>'bi-pencil-square',    'num'=>'01', 'title'=>'Buat Laporan',       'body'=>'Isi formulir laporan lengkap dengan foto bukti, pilih lokasi di peta, dan tentukan tingkat keparahan kerusakan.'],
-                ['icon'=>'bi-search',            'num'=>'02', 'title'=>'Verifikasi Admin',   'body'=>'Admin meninjau laporan masuk. Laporan valid akan diverifikasi dan masuk ke antrean penanganan berdasarkan priority score.'],
+                ['icon'=>'bi-search',            'num'=>'02', 'title'=>'Verifikasi Admin',   'body'=>'Admin memverifikasi laporan dan sistem menghitung priority score berdasarkan severity, report count, location importance, dan time waiting.'],
                 ['icon'=>'bi-tools',             'num'=>'03', 'title'=>'Tindak Lanjut',      'body'=>'Pemerintah menindaklanjuti laporan dengan prioritas tertinggi. Progress ditambahkan secara berkala disertai foto lapangan.'],
                 ['icon'=>'bi-check-circle-fill', 'num'=>'04', 'title'=>'Selesai & Laporan',  'body'=>'Setelah perbaikan selesai, status diupdate ke "Selesai" dan warga menerima notifikasi email konfirmasi.'],
             ];
@@ -646,6 +646,10 @@
                         'q' => 'Apakah masyarakat bisa memantau perkembangan laporan?',
                         'a' => 'Ya. Setiap laporan memiliki halaman detail yang dapat diakses publik. Di sana Anda dapat melihat status terkini, priority score, komentar warga, dan update proyek dari admin beserta foto progress pekerjaan.'
                     ],
+                    [
+                        'q' => 'Apa itu Priority Score?',
+                        'a' => 'Priority Score adalah nilai prioritas yang digunakan untuk menentukan urutan penanganan laporan. Nilai ini dihitung berdasarkan tingkat kerusakan, jumlah laporan serupa di lokasi yang sama, dan lamanya laporan menunggu penanganan.'
+                    ],
                 ];
                 @endphp
 
@@ -681,9 +685,9 @@
     <div class="container">
 
         @guest
-            <h2 class="cta-title">Siap Membuat Perubahan?</h2>
+            <h2 class="cta-title">Bantu Wujudkan Pelayanan Publik yang Lebih Responsif</h2>
             <p class="cta-sub">
-                Bergabunglah dengan ribuan warga yang sudah melaporkan kondisi fasilitas publik di kota Anda.
+                Laporkan kerusakan fasilitas publik di sekitar Anda dan pantau proses penanganannya secara transparan.
             </p>
 
             <div class="d-flex justify-content-center gap-3 flex-wrap">

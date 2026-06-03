@@ -348,8 +348,8 @@
 ────────────────────────────────────────────────────────────── --}}
 <div class="page-header">
     <div class="container">
-        <h1>Semua Proyek</h1>
-        <p>Daftar seluruh laporan dan proyek pembangunan fasilitas publik yang dapat diakses masyarakat.</p>
+        <h1>Semua Laporan</h1>
+        <p>Daftar seluruh laporan fasilitas publik yang dapat diakses masyarakat.</p>
     </div>
 </div>
 
