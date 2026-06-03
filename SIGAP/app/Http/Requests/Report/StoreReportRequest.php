@@ -16,18 +16,17 @@ class StoreReportRequest extends FormRequest
         return [
             'category_id' => 'required|exists:categories,id',
 
-            'title' => 'required|string|max:150',
+            'title' => 'required|string|max:80',
 
             'description' => 'required|string',
 
             'severity' => 'required|integer|in:1,2,3',
 
-            'is_anonymous' => 'required|boolean',
+            'is_anonymous' => 'boolean',
 
-            'location_name' => 'required|string|max:255',
+            'location_detail' => 'required|string|max:70',
 
             'district' => 'nullable|string|max:100',
-            'subdistrict' => 'nullable|string|max:100',
 
             'latitude' => [
                 'required',
@@ -55,5 +54,12 @@ class StoreReportRequest extends FormRequest
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {
         throw new \Illuminate\Validation\ValidationException($validator);
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'is_anonymous' => $this->has('is_anonymous'),
+        ]);
     }
 }

@@ -25,11 +25,14 @@ Route::get('/categories', function () {
     return \App\Models\Category::select('id', 'name')->get();
 });
 
+Route::get('/test-image', function () {
+    return Storage::disk('public')->url(
+        'reports/qC738IEmxvSUIj2DmdIC2eYFNUoD566SmcEY53Lq.jpg'
+    );
+});
 
 // AUTHENTICATED USER (JWT)
 Route::middleware('auth:api')->group(function () {
-
-
     // AUTH
     Route::prefix('auth')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
@@ -76,12 +79,7 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
         'updateStatus'
     ]);
 
-    /*
-    |----------------------------
-    | PROJECT UPDATES
-    |----------------------------
-    */
-
+    // PROJECT UPDATES
     // tambah update proyek
     Route::post('/reports/{id}/updates', [
         ProjectUpdateController::class,
@@ -97,7 +95,6 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     });
 
     // STATISTICS
-
     Route::get('/statistics', function () {
 
         return response()->json([

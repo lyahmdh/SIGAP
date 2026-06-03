@@ -18,9 +18,8 @@ class Report extends Model
         'severity',
         'is_anonymous',
         'status',
-        'location_name',
+        'location_detail',
         'district',
-        'subdistrict',
         'latitude',
         'longitude',
         'coordinates',
@@ -58,5 +57,53 @@ class Report extends Model
     public function projectUpdates()
     {
         return $this->hasMany(ProjectUpdate::class);
+    }
+    
+    public function recalculatePriorityScore(): void
+    {
+        $category = $this->category;
+
+        if (!$category) {
+            return;
+        }
+
+        $reportCount = self::where('category_id', $this->category_id)
+            ->whereRaw("
+                ST_Distance_Sphere(
+                    POINT(longitude, latitude),
+                    POINT(?, ?)
+                ) <= ?
+            ", [
+                $this->longitude,
+                $this->latitude,
+                $category->report_radius
+            ])
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $severityScore = match ((int) $this->severity) {
+            1 => 30,
+            2 => 60,
+            3 => 100,
+            default => 0,
+        };
+
+        $reportCountScore =
+            min($reportCount, 10) * 10;
+
+        $days =
+            now()->diffInDays($this->created_at);
+
+        $waitingScore =
+            (min($days, 30) / 30) * 100;
+
+        $priorityScore =
+            ($severityScore * 0.3) +
+            ($reportCountScore * 0.5) +
+            ($waitingScore * 0.2);
+
+        $this->update([
+            'priority_score' => round($priorityScore, 2)
+        ]);
     }
 }

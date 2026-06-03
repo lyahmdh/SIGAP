@@ -99,7 +99,7 @@ class ReportController extends Controller
             ], 404);
         }
 
-        // jangan tampilkan kalau ditolak
+        // tidak tampil kalau ditolak
         if ($report->status === 'ditolak') {
             return response()->json([
                 'success' => false,

@@ -18,6 +18,10 @@ class Comment extends Model
         'created_at'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public function report()
     {
         return $this->belongsTo(Report::class);

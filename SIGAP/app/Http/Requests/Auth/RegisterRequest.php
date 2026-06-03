@@ -25,4 +25,10 @@ class RegisterRequest extends FormRequest
             ]
         ];
     }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        session()->flash('_auth_mode', 'register');
+        parent::failedValidation($validator);
+    }
 }
