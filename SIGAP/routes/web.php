@@ -177,6 +177,9 @@ Route::prefix('admin')
             // Tambah update proyek
             Route::post('/{id}/update', [ProjectUpdateController::class, 'store'])
                 ->name('update.store');
+
+            Route::delete('/update/{updateId}', [ProjectUpdateController::class, 'destroy'])
+                ->name('update.destroy');
         });
 
         // ── STATISTIK (JSON endpoint untuk chart) ─────────────────────────────

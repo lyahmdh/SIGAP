@@ -571,10 +571,10 @@ textarea.form-control-sigap { resize: vertical; min-height: 110px; }
                                     class="form-control-sigap @error('location_detail') is-invalid @enderror"
                                     placeholder="Contoh: Depan SDN 01, sebelah minimarket, dekat lampu merah..."
                                     rows="3"
-                                    maxlength="70"
+                                    maxlength="50"
                                     required>{{ old('location_detail') }}</textarea>
                                 <div class="char-counter" id="locationDetailCounter">
-                                    <span id="locationDetailCount">{{ strlen(old('location_detail', '')) }}</span>/70 karakter
+                                    <span id="locationDetailCount">{{ strlen(old('location_detail', '')) }}</span>/50 karakter
                                 </div>
                                 <div class="upload-hint" style="margin-top:.25rem">
                                     <i class="bi bi-info-circle"></i>
@@ -732,6 +732,7 @@ textarea.form-control-sigap { resize: vertical; min-height: 110px; }
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -747,13 +748,15 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    const latInput      = document.getElementById('latInput');
-    const lngInput      = document.getElementById('lngInput');
+    const latInput          = document.getElementById('latInput');
+    const lngInput          = document.getElementById('lngInput');
     const locationNameInput = document.getElementById('locationName');
-    const districtInput = document.getElementById('districtInput');
-    const coordsDisplay = document.getElementById('coordsDisplay');
-    const coordsText    = document.getElementById('coordsText');
-    
+    const districtInput     = document.getElementById('districtInput');
+    const coordsDisplay     = document.getElementById('coordsDisplay');
+    const coordsText        = document.getElementById('coordsText');
+
+    let kecamatanGeojson = null;
+
     // ── CHAR COUNTERS ──────────────────────────────────────
     function initCharCounter(inputId, countId, counterId, max) {
         const input   = document.getElementById(inputId);
@@ -771,39 +774,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         input.addEventListener('input', update);
-        update(); // init dari old() value
+        update();
     }
 
     initCharCounter('titleInput',          'titleCount',          'titleCounter',          80);
     initCharCounter('locationDetailInput', 'locationDetailCount', 'locationDetailCounter', 70);
 
-    // ── KECAMATAN DETECTOR (IF ELSE VERSION) ──────────────
+    // ── KECAMATAN DETECTOR ────────────────────────────────
     function getKecamatan(lat, lng) {
+        if (!kecamatanGeojson) return null;
 
-        // Kedungkandang (selatan - timur)
-        if (lat < -7.98 && lng > 112.65) {
-            return "Kedungkandang";
+        const point = turf.point([lng, lat]);
+
+        for (const feature of kecamatanGeojson.features) {
+            if (turf.booleanPointInPolygon(point, feature)) {
+                return feature.properties.NAME_3;
+            }
         }
 
-        // Lowokwaru (utara - barat)
-        else if (lat < -7.93 && lng < 112.62) {
-            return "Lowokwaru";
-        }
-
-        // Klojen (pusat kota)
-        else if (lat >= -7.97 && lat <= -7.95 && lng >= 112.60 && lng <= 112.65) {
-            return "Klojen";
-        }
-
-        // Blimbing (utara - timur)
-        else if (lat >= -7.93 && lng > 112.62) {
-            return "Blimbing";
-        }
-
-        // default fallback
-        else {
-            return "Sukun";
-        }
+        return null;
     }
 
     // ── UPDATE COORDS ─────────────────────────────────────
@@ -812,25 +801,47 @@ document.addEventListener('DOMContentLoaded', () => {
         lngInput.value = lng.toFixed(8);
 
         coordsDisplay.style.display = 'flex';
-        coordsText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
-        // SET DISTRICT FROM IF-ELSE
         const district = getKecamatan(lat, lng);
-        districtInput.value = district;
+        districtInput.value = district ?? '';
 
-        // optional display tambahan
-        coordsText.textContent += ` – ${district}`;
+        coordsText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        if (district) {
+            coordsText.textContent += ` • ${district}`;
+        }
     }
 
-    // ── INIT FROM OLD VALUE ───────────────────────────────
-    if (latInput.value && lngInput.value) {
-        updateCoords(parseFloat(latInput.value), parseFloat(lngInput.value));
-        marker.setLatLng([parseFloat(latInput.value), parseFloat(lngInput.value)]);
-        map.setView([parseFloat(latInput.value), parseFloat(lngInput.value)], 16);
-    }
+    // ── LOAD GEOJSON ──────────────────────────────────────
+    fetch('/geojson/kecamatan_kota_malang.geojson')
+        .then(res => res.json())
+        .then(data => {
+            kecamatanGeojson = data;
+
+            L.geoJSON(data, {
+                style: {
+                    color: '#2D5A2E',
+                    weight: 2,
+                    fillOpacity: 0.05
+                }
+            }).addTo(map);
+
+            // Init dari old() value — dijalankan setelah GeoJSON siap
+            if (latInput.value && lngInput.value) {
+                updateCoords(parseFloat(latInput.value), parseFloat(lngInput.value));
+                marker.setLatLng([parseFloat(latInput.value), parseFloat(lngInput.value)]);
+                map.setView([parseFloat(latInput.value), parseFloat(lngInput.value)], 16);
+            }
+        })
+        .catch(err => {
+            console.error('Gagal memuat data kecamatan:', err);
+        });
 
     // ── CLICK MAP ─────────────────────────────────────────
     map.on('click', e => {
+        if (!kecamatanGeojson) {
+            alert('Data wilayah sedang dimuat, tunggu sebentar.');
+            return;
+        }
         marker.setLatLng(e.latlng);
         updateCoords(e.latlng.lat, e.latlng.lng);
     });
@@ -947,6 +958,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!latInput.value || !lngInput.value) {
             e.preventDefault();
             alert('Harap pilih lokasi pada peta terlebih dahulu.');
+            return;
+        }
+
+        if (!districtInput.value) {
+            e.preventDefault();
+            alert('Kecamatan belum terdeteksi. Coba klik ulang lokasi di peta.');
             return;
         }
 

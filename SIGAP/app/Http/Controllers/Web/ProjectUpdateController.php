@@ -8,6 +8,7 @@ use App\Models\ProjectUpdate;
 use App\Models\ProjectUpdateImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectUpdateController extends Controller
 {
@@ -51,6 +52,39 @@ class ProjectUpdateController extends Controller
             return back()
                 ->withInput()
                 ->with('error', 'Gagal menambahkan update proyek. Silakan coba lagi.');
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $update = ProjectUpdate::with('images')->findOrFail($id);
+
+            // Hapus file gambar
+            foreach ($update->images as $image) {
+                Storage::disk('public')->delete($image->image_path);
+            }
+
+            // Hapus record gambar
+            $update->images()->delete();
+
+            // Hapus update
+            $reportId = $update->report_id;
+            $update->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.laporan.show', $reportId)
+                ->with('success', 'Update proyek berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()
+                ->with('error', 'Gagal menghapus update proyek.');
         }
     }
 }

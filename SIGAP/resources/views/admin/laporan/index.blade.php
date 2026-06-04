@@ -295,7 +295,18 @@
 .td-title {
     font-weight: 600;
     color: var(--green-dark);
-    max-width: 160px;
+    max-width: 200px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+}
+.td-location {
+    max-width: 220px;
+    color: var(--text-muted);
+    font-size: .82rem;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
 }
 .td-category { color: var(--text-muted); font-size: .82rem; max-width: 130px; }
 .td-date { color: var(--text-muted); font-size: .82rem; white-space: nowrap; }
@@ -453,6 +464,7 @@
 .toast-item i { font-size: 1.1rem; }
 .toast-item.success i { color: var(--green-mid); }
 .toast-item.error i   { color: #E53E3E; }
+
 
 @keyframes slideInRight {
     from { opacity: 0; transform: translateX(40px); }
@@ -658,30 +670,11 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Judul</th>
-                                    <th>
-                                        Tanggal Laporan
-                                        <button class="sort-btn active" title="Urutkan tanggal">
-                                            <i class="bi bi-arrow-down-up"></i>
-                                        </button>
-                                    </th>
-                                    <th>
-                                        Kategori
-                                        <button class="sort-btn" title="Filter kategori">
-                                            <i class="bi bi-funnel-fill"></i>
-                                        </button>
-                                    </th>
-                                    <th>
-                                        Priority Score
-                                        <button class="sort-btn" title="Urutkan priority">
-                                            <i class="bi bi-arrow-down-up"></i>
-                                        </button>
-                                    </th>
-                                    <th>
-                                        Status
-                                        <button class="sort-btn" title="Filter status">
-                                            <i class="bi bi-funnel-fill"></i>
-                                        </button>
-                                    </th>
+                                    <th>Detail Lokasi</th>
+                                    <th>Tanggal Laporan</th>
+                                    <th>Kategori</th>
+                                    <th>Priority Score</th>
+                                    <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -703,6 +696,9 @@
                                 <tr>
                                     <td class="td-id">#{{ str_pad($report->id, 3, '0', STR_PAD_LEFT) }}</td>
                                     <td class="td-title">{{ $report->title }}</td>
+                                    <td class="td-location">
+                                        {{ $report->location_detail ?? '-' }}
+                                    </td>
                                     <td class="td-date">
                                         {{ \Carbon\Carbon::parse($report->created_at)->format('d/m/Y') }}
                                     </td>

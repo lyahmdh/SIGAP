@@ -24,7 +24,7 @@ class StoreReportRequest extends FormRequest
 
             'is_anonymous' => 'boolean',
 
-            'location_detail' => 'required|string|max:70',
+            'location_detail' => 'required|string|max:50',
 
             'district' => 'nullable|string|max:100',
 

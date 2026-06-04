@@ -59,7 +59,7 @@ class AdminController extends Controller
         $query = Report::with(['category:id,name'])
             ->select([
                 'id', 'title', 'category_id', 'status',
-                'priority_score', 'district', 'created_at',
+                'priority_score', 'district', 'location_detail', 'created_at',
             ]);
 
         // ── SEARCH ──────────────────────────────────────

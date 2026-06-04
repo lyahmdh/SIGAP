@@ -402,7 +402,8 @@
                         <select name="kategori" class="form-select" onchange="document.getElementById('filterForm').submit()">
                             <option value="">Kategori</option>
                             @foreach($categories as $category)
-                            <option value="{{ $category->id }}">
+                            <option value="{{ $category->name }}"
+                                {{ request('kategori') == $category->name ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                             @endforeach

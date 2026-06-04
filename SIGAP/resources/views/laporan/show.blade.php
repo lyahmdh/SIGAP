@@ -53,6 +53,9 @@
     font-weight: 600;
     line-height: 1.25;
     margin-bottom: .5rem;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 .report-meta-row {
     display: flex;
@@ -237,6 +240,9 @@
     font-size: .935rem;
     color: var(--text-muted);
     line-height: 1.8;
+
+        overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Map in detail */
@@ -245,6 +251,12 @@
     border-radius: var(--radius-md);
     border: 1.5px solid var(--cream-dark);
     margin-top: .75rem;
+}
+
+.leaflet-popup-content {
+    max-width: 220px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* ─── PRIORITY PILL ───────────────────────────────── */
@@ -720,10 +732,30 @@
                                             {{ \Carbon\Carbon::parse($update->created_at)->isoFormat('D MMMM Y') }}
                                         </div>
 
-                                        <div class="fw-700"
-                                            style="font-size:.9rem; color:var(--green-dark); margin-bottom:.3rem">
-                                            {{ $update->title }}
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-700"
+                                                style="font-size:.9rem; color:var(--green-dark); margin-bottom:.3rem">
+                                                {{ $update->title }}
+                                            </div>
                                         </div>
+
+                                        @auth
+                                        @if(auth()->user()->role === 'admin')
+                                        <form action="{{ route('admin.laporan.update.destroy', $update->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Hapus update proyek ini?')">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        @endif
+                                        @endauth
+                                    </div>
 
                                         <div class="update-text">
                                             {{ $update->description }}

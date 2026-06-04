@@ -287,7 +287,10 @@
 .td-title {
     font-weight: 600;
     color: var(--green-dark);
-    max-width: 160px;
+    max-width: 200px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
 }
 .td-category { color: var(--text-muted); font-size: .82rem; max-width: 130px; }
 .td-date { color: var(--text-muted); font-size: .82rem; white-space: nowrap; }
